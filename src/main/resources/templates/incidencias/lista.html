@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Rosmar - Incidencias</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: Arial, sans-serif; background: #f0f2f5; }
+        .navbar {
+            background: #1F3864; color: white;
+            padding: 14px 24px;
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .navbar h1 { font-size: 18px; }
+        .navbar a { color: white; text-decoration: none; font-size: 14px; }
+        .container { padding: 24px; max-width: 1100px; margin: 0 auto; }
+        h2 { color: #1F3864; margin-bottom: 16px; }
+        .btn {
+            padding: 8px 16px; border-radius: 6px; border: none;
+            cursor: pointer; font-size: 14px; text-decoration: none;
+        }
+        .btn-primary { background: #1F3864; color: white; }
+        .card {
+            background: white; border-radius: 8px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.08); padding: 20px;
+            margin-top: 16px;
+        }
+        table { width: 100%; border-collapse: collapse; }
+        th { background: #1F3864; color: white; padding: 10px 12px; text-align: left; font-size: 13px; }
+        td { padding: 10px 12px; font-size: 13px; border-bottom: 1px solid #eee; }
+        tr:hover td { background: #f9f9f9; }
+        .badge {
+            padding: 3px 10px; border-radius: 12px; font-size: 12px; font-weight: bold;
+        }
+        .badge-alto { background: #fce4d6; color: #c00; }
+        .badge-medio { background: #fff2cc; color: #7f6000; }
+        .badge-bajo { background: #d9ead3; color: #1E6B3C; }
+        .badge-abierta { background: #fce4d6; color: #c00; }
+        .badge-proceso { background: #fff2cc; color: #7f6000; }
+        .badge-resuelta { background: #d9ead3; color: #1E6B3C; }
+        .empty { text-align: center; color: #888; padding: 40px; }
+    </style>
+</head>
+<body>
+<div class="navbar">
+    <h1>Rosmar — Incidencias Sanitarias</h1>
+    <a th:href="@{/logout}">Cerrar sesión</a>
+</div>
+<div class="container">
+    <h2>Historial de Incidencias</h2>
+    <a th:href="@{/incidencias/nueva}" class="btn btn-primary">+ Nueva incidencia</a>
+
+    <div class="card">
+        <table>
+            <thead>
+            <tr>
+                <th>Folio</th>
+                <th>Fecha</th>
+                <th>Área</th>
+                <th>Título</th>
+                <th>Severidad</th>
+                <th>Estatus</th>
+                <th>Técnico</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:if="${#lists.isEmpty(incidencias)}">
+                <td colspan="7" class="empty">No hay incidencias registradas aún.</td>
+            </tr>
+            <tr th:each="inc : ${incidencias}">
+                <td th:text="${inc.id}"></td>
+                <td th:text="${#temporals.format(inc.fechaRegistro, 'dd/MM/yyyy HH:mm')}"></td>
+                <td th:text="${inc.area.nombre}"></td>
+                <td th:text="${inc.titulo}"></td>
+                <td>
+                            <span th:class="${'badge badge-' + #strings.toLowerCase(inc.severidad.name())}"
+                                  th:text="${inc.severidad.name()}"></span>
+                </td>
+                <td>
+                            <span th:class="${inc.estatus.name() == 'ABIERTA' ? 'badge badge-abierta' : (inc.estatus.name() == 'EN_PROCESO' ? 'badge badge-proceso' : 'badge badge-resuelta')}"
+                                  th:text="${inc.estatus.name()}"></span>
+                </td>
+                <td th:text="${inc.reportadaPor.nombre + ' ' + inc.reportadaPor.apellido}"></td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+</body>
+</html>
