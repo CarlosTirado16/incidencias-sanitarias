@@ -10,6 +10,7 @@ import com.rosmar.incidencias.service.UsuarioService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import com.rosmar.incidencias.model.Estatus;
 
 import java.security.Principal;
 
@@ -53,6 +54,15 @@ public class IncidenciaController {
         Area area = areaService.buscarPorId(areaId).orElseThrow();
         incidencia.setArea(area);
         incidencia.setReportadaPor(usuario);
+        incidenciaService.guardar(incidencia);
+        return "redirect:/incidencias";
+    }
+
+    @PostMapping("/{id}/estatus")
+    public String cambiarEstatus(@PathVariable Long id,
+                                 @RequestParam Estatus estatus) {
+        Incidencia incidencia = incidenciaService.buscarPorId(id).orElseThrow();
+        incidencia.setEstatus(estatus);
         incidenciaService.guardar(incidencia);
         return "redirect:/incidencias";
     }
