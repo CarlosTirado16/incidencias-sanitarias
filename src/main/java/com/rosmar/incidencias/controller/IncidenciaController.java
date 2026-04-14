@@ -11,6 +11,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import com.rosmar.incidencias.model.Estatus;
+import java.util.List;
 
 import java.security.Principal;
 
@@ -31,9 +32,27 @@ public class IncidenciaController {
     }
 
     @GetMapping
-    public String listar(Model model) {
-        model.addAttribute("incidencias", incidenciaService.listarTodas());
+    public String listar(@RequestParam(required = false) String area,
+                         @RequestParam(required = false) String estatus,
+                         Model model) {
+        List<Incidencia> incidencias = incidenciaService.listarTodas();
+
+        if (area != null && !area.isEmpty()) {
+            incidencias = incidencias.stream()
+                    .filter(i -> i.getArea().getId().toString().equals(area))
+                    .collect(java.util.stream.Collectors.toList());
+        }
+        if (estatus != null && !estatus.isEmpty()) {
+            incidencias = incidencias.stream()
+                    .filter(i -> i.getEstatus().name().equals(estatus))
+                    .collect(java.util.stream.Collectors.toList());
+        }
+
+        model.addAttribute("incidencias", incidencias);
         model.addAttribute("areas", areaService.listarTodas());
+        model.addAttribute("estatuses", Estatus.values());
+        model.addAttribute("filtroArea", area);
+        model.addAttribute("filtroEstatus", estatus);
         return "incidencias/lista";
     }
 
