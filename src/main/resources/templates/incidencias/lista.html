@@ -1,5 +1,6 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
     <meta charset="UTF-8">
     <title>Rosmar - Incidencias</title>
@@ -73,12 +74,22 @@
                 <td th:text="${inc.area.nombre}"></td>
                 <td th:text="${inc.titulo}"></td>
                 <td>
-                            <span th:class="${'badge badge-' + #strings.toLowerCase(inc.severidad.name())}"
-                                  th:text="${inc.severidad.name()}"></span>
+                    <span th:class="${'badge badge-' + #strings.toLowerCase(inc.severidad.name())}"
+                          th:text="${inc.severidad.name()}"></span>
                 </td>
                 <td>
-                            <span th:class="${inc.estatus.name() == 'ABIERTA' ? 'badge badge-abierta' : (inc.estatus.name() == 'EN_PROCESO' ? 'badge badge-proceso' : 'badge badge-resuelta')}"
-                                  th:text="${inc.estatus.name()}"></span>
+                    <form th:action="@{/incidencias/{id}/estatus(id=${inc.id})}" method="post"
+                          sec:authorize="hasRole('SUPERVISOR')">
+                        <select name="estatus" onchange="this.form.submit()"
+                                style="border:1px solid #ddd; border-radius:4px; padding:4px 8px; font-size:12px; cursor:pointer;">
+                            <option th:value="ABIERTA"    th:selected="${inc.estatus.name() == 'ABIERTA'}"    style="color:#c00;">ABIERTA</option>
+                            <option th:value="EN_PROCESO" th:selected="${inc.estatus.name() == 'EN_PROCESO'}" style="color:#7f6000;">EN PROCESO</option>
+                            <option th:value="RESUELTA"   th:selected="${inc.estatus.name() == 'RESUELTA'}"   style="color:#1E6B3C;">RESUELTA</option>
+                        </select>
+                    </form>
+                    <span th:unless="${#authorization.expression('hasRole(''SUPERVISOR'')')}"
+                          th:class="${inc.estatus.name() == 'ABIERTA' ? 'badge badge-abierta' : (inc.estatus.name() == 'EN_PROCESO' ? 'badge badge-proceso' : 'badge badge-resuelta')}"
+                          th:text="${inc.estatus.name()}"></span>
                 </td>
                 <td th:text="${inc.reportadaPor.nombre + ' ' + inc.reportadaPor.apellido}"></td>
             </tr>
