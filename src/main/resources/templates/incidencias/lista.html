@@ -50,6 +50,12 @@
 <div class="container">
     <h2>Historial de Incidencias</h2>
     <a th:href="@{/incidencias/nueva}" class="btn btn-primary">+ Nueva incidencia</a>
+    <a th:href="@{/incidencias/reporte-pdf(area=${filtroArea}, estatus=${filtroEstatus})}"
+       class="btn"
+       style="background:#1E6B3C; color:white;"
+       sec:authorize="hasRole('SUPERVISOR')">
+        Descargar PDF
+    </a>
 
     <div class="filtros" style="background:white; padding:16px; border-radius:8px; box-shadow:0 2px 6px rgba(0,0,0,0.08); margin-top:16px; display:flex; gap:12px; align-items:flex-end; flex-wrap:wrap;">
         <form th:action="@{/incidencias}" method="get" style="display:flex; gap:12px; align-items:flex-end; flex-wrap:wrap; width:100%;">
