@@ -1,5 +1,6 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
     <meta charset="UTF-8">
     <title>Rosmar - Incidencias</title>
@@ -49,6 +50,41 @@
 <div class="container">
     <h2>Historial de Incidencias</h2>
     <a th:href="@{/incidencias/nueva}" class="btn btn-primary">+ Nueva incidencia</a>
+    <a th:href="@{/incidencias/reporte-pdf(area=${filtroArea}, estatus=${filtroEstatus})}"
+       class="btn"
+       style="background:#1E6B3C; color:white;"
+       sec:authorize="hasRole('SUPERVISOR')">
+        Descargar PDF
+    </a>
+
+    <div class="filtros" style="background:white; padding:16px; border-radius:8px; box-shadow:0 2px 6px rgba(0,0,0,0.08); margin-top:16px; display:flex; gap:12px; align-items:flex-end; flex-wrap:wrap;">
+        <form th:action="@{/incidencias}" method="get" style="display:flex; gap:12px; align-items:flex-end; flex-wrap:wrap; width:100%;">
+            <div>
+                <label style="display:block; font-size:13px; color:#333; margin-bottom:4px; font-weight:bold;">Área</label>
+                <select name="area" style="padding:8px 12px; border:1px solid #ddd; border-radius:6px; font-size:13px;">
+                    <option value="">Todas las áreas</option>
+                    <option th:each="a : ${areas}"
+                            th:value="${a.id}"
+                            th:text="${a.nombre}"
+                            th:selected="${filtroArea != null && filtroArea == a.id.toString()}"></option>
+                </select>
+            </div>
+            <div>
+                <label style="display:block; font-size:13px; color:#333; margin-bottom:4px; font-weight:bold;">Estatus</label>
+                <select name="estatus" style="padding:8px 12px; border:1px solid #ddd; border-radius:6px; font-size:13px;">
+                    <option value="">Todos los estatus</option>
+                    <option th:each="e : ${estatuses}"
+                            th:value="${e.name()}"
+                            th:text="${e.name()}"
+                            th:selected="${filtroEstatus != null && filtroEstatus == e.name()}"></option>
+                </select>
+            </div>
+            <div style="display:flex; gap:8px;">
+                <button type="submit" class="btn btn-primary">Filtrar</button>
+                <a th:href="@{/incidencias}" class="btn btn-secondary">Limpiar</a>
+            </div>
+        </form>
+    </div>
 
     <div class="card">
         <table>
@@ -73,12 +109,22 @@
                 <td th:text="${inc.area.nombre}"></td>
                 <td th:text="${inc.titulo}"></td>
                 <td>
-                            <span th:class="${'badge badge-' + #strings.toLowerCase(inc.severidad.name())}"
-                                  th:text="${inc.severidad.name()}"></span>
+                    <span th:class="${'badge badge-' + #strings.toLowerCase(inc.severidad.name())}"
+                          th:text="${inc.severidad.name()}"></span>
                 </td>
                 <td>
-                            <span th:class="${inc.estatus.name() == 'ABIERTA' ? 'badge badge-abierta' : (inc.estatus.name() == 'EN_PROCESO' ? 'badge badge-proceso' : 'badge badge-resuelta')}"
-                                  th:text="${inc.estatus.name()}"></span>
+                    <form th:action="@{/incidencias/{id}/estatus(id=${inc.id})}" method="post"
+                          sec:authorize="hasRole('SUPERVISOR')">
+                        <select name="estatus" onchange="this.form.submit()"
+                                style="border:1px solid #ddd; border-radius:4px; padding:4px 8px; font-size:12px; cursor:pointer;">
+                            <option th:value="ABIERTA"    th:selected="${inc.estatus.name() == 'ABIERTA'}"    style="color:#c00;">ABIERTA</option>
+                            <option th:value="EN_PROCESO" th:selected="${inc.estatus.name() == 'EN_PROCESO'}" style="color:#7f6000;">EN PROCESO</option>
+                            <option th:value="RESUELTA"   th:selected="${inc.estatus.name() == 'RESUELTA'}"   style="color:#1E6B3C;">RESUELTA</option>
+                        </select>
+                    </form>
+                    <span th:unless="${#authorization.expression('hasRole(''SUPERVISOR'')')}"
+                          th:class="${inc.estatus.name() == 'ABIERTA' ? 'badge badge-abierta' : (inc.estatus.name() == 'EN_PROCESO' ? 'badge badge-proceso' : 'badge badge-resuelta')}"
+                          th:text="${inc.estatus.name()}"></span>
                 </td>
                 <td th:text="${inc.reportadaPor.nombre + ' ' + inc.reportadaPor.apellido}"></td>
             </tr>
